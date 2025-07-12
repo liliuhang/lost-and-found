@@ -1,0 +1,96 @@
+name: Send Email Notification
+
+on:
+  repository_dispatch:
+    types: [send_email]
+
+jobs:
+  send-email:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+      
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.8'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests
+        
+    - name: Send email via Aliyun SMTP
+      env:
+        SMTP_SERVER: smtpdm-ap-southeast-1.aliyuncs.com
+        SMTP_PORT: 465
+        SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+        SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+        SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
+        RECIPIENT_EMAIL: liliuhang1124@outlook.com
+      run: |
+        import smtplib
+        import ssl
+        from email.mime.text import MIMEText
+        from email.mime.multipart import MIMEMultipart
+        import os
+        import json
+
+        # 从事件负载中获取数据
+        payload = ${{ toJSON(github.event.client_payload) }}
+        ip = payload.get('ip', '未知IP')
+        location = payload.get('location', '未知位置')
+        address = payload.get('address', '未知地址')
+
+        # 创建邮件内容
+        message = MIMEMultipart("alternative")
+        message["Subject"] = "失物找回通知"
+        message["From"] = os.environ['SENDER_EMAIL']
+        message["To"] = os.environ['RECIPIENT_EMAIL']
+
+        # 创建HTML版本的邮件
+        html = f"""\
+        <html>
+          <body>
+            <h2>失物找回通知</h2>
+            <p>尊敬的失主，您好！</p>
+            <p>您的物品已被拾取者扫描，并上传了以下信息：</p>
+            <ul>
+                <li>拾取者IP地址：{ip}</li>
+                <li>详细地址：{address}</li>
+                <li>经纬度：{location}</li>
+            </ul>
+            <p>请尽快与拾取者联系，以便找回您的物品。</p>
+            <p>此邮件由系统自动发送，请勿直接回复。</p>
+          </body>
+        </html>
+        """
+
+        # 添加HTML部分
+        part = MIMEText(html, "html")
+        message.attach(part)
+
+        # 创建安全的SSL上下文
+        context = ssl.create_default_context()
+
+        try:
+            with smtplib.SMTP_SSL(
+                os.environ['SMTP_SERVER'], 
+                os.environ['SMTP_PORT'], 
+                context=context
+            ) as server:
+                server.login(
+                    os.environ['SMTP_USERNAME'], 
+                    os.environ['SMTP_PASSWORD']
+                )
+                server.sendmail(
+                    os.environ['SENDER_EMAIL'], 
+                    os.environ['RECIPIENT_EMAIL'], 
+                    message.as_string()
+                )
+            print("邮件发送成功")
+        except Exception as e:
+            print(f"邮件发送失败: {e}")
+      shell: python
