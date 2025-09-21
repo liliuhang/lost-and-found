@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>失物找回平台 - 永慕智创软件工作室</title>
+    <style>
+        /* 保持原有样式不变 */
+        :root {
+            --primary-color: #1a73e8;
+            --secondary-color: #333;
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #f5f5f5;
+            --warning-bg: #2d1a1c;
+            --notice-bg: #2d2a1a;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 15px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .container {
+            background-color: var(--card-bg);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            margin-top: 15px;
+        }
+        h1 {
+            color: var(--primary-color);
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 22px;
+        }
+        .notice {
+            background-color: var(--notice-bg);
+            border-left: 4px solid #ffc107;
+            padding: 12px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            border-radius: 5px;
+        }
+        .warning {
+            background-color: var(--warning-bg);
+            border-left: 4px solid #f44336;
+            padding: 12px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            border-radius: 5px;
+        }
+        .contact-info {
+            margin-bottom: 25px;
+        }
+        .contact-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            background-color: rgba(255,255,255,0.05);
+            padding: 10px;
+            border-radius: 8px;
+        }
+        .contact-icon {
+            width: 35px;
+            height: 35px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            margin-right: 12px;
+            font-size: 18px;
+        }
+        .contact-detail h3 {
+            color: var(--primary-color);
+            margin-bottom: 3px;
+            font-size: 15px;
+        }
+        .contact-detail p {
+            color: #ccc;
+            font-size: 13px;
+        }
+        .location-display {
+            margin-top: 15px;
+            padding: 12px;
+            background-color: rgba(76, 175, 80, 0.1);
+            border-left: 4px solid #4caf50;
+            font-size: 13px;
+            border-radius: 5px;
+        }
+        .error-message {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: rgba(244, 67, 54, 0.1);
+            border-left: 4px solid #f44336;
+            font-size: 12px;
+            color: #ff9e9e;
+            border-radius: 5px;
+            display: none;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 11px;
+            color: #999;
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            h1 {
+                font-size: 18px;
+            }
+        }
+        .submit-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+        .submit-btn:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 13px;
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            background-color: rgba(255,255,255,0.05);
+            border: 1px solid #444;
+            color: var(--text-color);
+            border-radius: 5px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>永慕智创软件工作室失物找回平台</h1>
+        
+        <div class="notice">
+            您扫描了带有失物找回服务的二维码，本平台将协助您联系失主。<br>
+            需获取您的位置信息以通知失主，请确保已开启定位服务。<br>
+            ⚠️首次访问将弹窗申请定位权限，请点击允许！<br>
+            【根据法律规定：您的隐私数据将在失物归还后永久删除】
+        </div>
+
+        <div class="form-group">
+            <label for="item-name">失物名称</label>
+            <input type="text" id="item-name" placeholder="请输入失物名称" required>
+        </div>
+
+        <div class="form-group">
+            <label for="finder-name">拾取者姓名（选填）</label>
+            <input type="text" id="finder-name" placeholder="请输入您的姓名">
+        </div>
+
+        <div class="form-group">
+            <label for="finder-phone">联系电话（选填）</label>
+            <input type="tel" id="finder-phone" placeholder="请输入您的电话">
+        </div>
+
+        <button class="submit-btn" id="submit-btn">提交位置信息</button>
+
+        <div class="location-display" id="location-info" style="display: none;">
+            <h3>位置信息</h3>
+            <p>您的位置：<span id="user-location">正在获取...</span></p>
+            <p>详细地址：<span id="user-address">正在获取...</span></p>
+            <p>我们已记录此信息并通知失主，请通过上方联系方式联系失主。</p>
+            <div class="error-message" id="error-message"></div>
+        </div>
+
+        <div class="warning">
+            <h3>重要警示</h3>
+            <p>⚠️位置信息将被记录，请及时联系失主！</p>
+            <p>如未及时联系，失主可报案处理，后果自负。</p>
+        </div>
+
+        <div class="footer">
+            建设运营：永慕智创软件工作室<br>
+            技术支持：高德地图、企业微信
+        </div>
+    </div>
+
+    <!-- 高德地图安全配置 -->
+    <script type="text/javascript">
+        window._AMapSecurityConfig = {
+            securityJsCode: "6655b8ddcef38eb7dcfc6b4ec649cedd", // 替换为实际安全密钥
+        };
+    </script>
+
+    <!-- 高德地图API加载 -->
+    <script 
+        type="text/javascript" 
+        src="https://webapi.amap.com/maps?v=2.0&key=197ddb697c7ee953ddd1e0472d95b201&plugin=AMap.Geolocation,AMap.Geocoder">
+    </script>
+
+    <script>
+        // 初始化提示
+        alert("您已进入失物找回平台，需获取位置信息以通知失主。\n请确保已开启定位服务并允许权限。\n隐私数据将在归还后永久删除。");
+
+        // 定位确认
+        if (!confirm("请确认已开启手机定位服务，点击确定继续。")) {
+            alert("定位服务未开启，请开启后刷新页面。");
+            throw new Error("定位服务未开启");
+        }
+
+        // 获取位置和地址
+        async function getLocationAndAddress() {
+            return new Promise((resolve, reject) => {
+                const timeout = setTimeout(() => {
+                    reject(new Error('获取位置超时'));
+                }, 20000);
+
+                AMap.plugin(['AMap.Geolocation', 'AMap.Geocoder'], function() {
+                    const geolocation = new AMap.Geolocation({
+                        enableHighAccuracy: true,
+                        timeout: 10000
+                    });
+
+                    geolocation.getCurrentPosition(function(status, result) {
+                        clearTimeout(timeout);
+                        if (status === 'complete') {
+                            const position = result.position;
+                            const locationStr = `纬度: ${position.lat}, 经度: ${position.lng}`;
+                            
+                            const geocoder = new AMap.Geocoder();
+                            geocoder.getAddress(position, function(status, result) {
+                                if (status === 'complete' && result.regeocode) {
+                                    const address = result.regeocode.formattedAddress;
+                                    resolve({ location: locationStr, address: address });
+                                } else {
+                                    reject(new Error('获取地址失败'));
+                                }
+                            });
+                        } else {
+                            reject(new Error('获取位置失败'));
+                        }
+                    });
+                });
+            });
+        }
+
+        // 发送到企业微信机器人 - 增强错误处理
+        async function sendToWeCom(message) {
+            const webhookUrl = "https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=a74bfe660b4747069179abad196d071c"; // 替换为实际机器人key
+            
+            try {
+                // 检查是否为HTTPS环境
+                if (window.location.protocol !== 'https:') {
+                    throw new Error('请在HTTPS环境下使用本功能');
+                }
+                
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(message),
+                    // 增加超时设置
+                    signal: AbortSignal.timeout(15000)
+                });
+                
+                const responseText = await response.text();
+                
+                if (!response.ok) {
+                    throw new Error(`服务器返回错误: ${response.status} - ${responseText}`);
+                }
+                
+                // 检查企业微信返回的错误码
+                try {
+                    const result = JSON.parse(responseText);
+                    if (result.errcode !== 0) {
+                        throw new Error(`企业微信接口错误: ${result.errmsg}`);
+                    }
+                } catch (e) {
+                    if (!(e instanceof Error)) {
+                        throw new Error('解析接口响应失败');
+                    }
+                    throw e;
+                }
+                
+                return { success: true };
+            } catch (error) {
+                console.error('发送到企业微信失败:', error);
+                return { 
+                    success: false, 
+                    error: error.message,
+                    type: error.name === 'AbortError' ? 'timeout' : 
+                          error.message.includes('HTTPS') ? 'protocol' : 'network'
+                };
+            }
+        }
+
+        // 提交处理
+        document.getElementById('submit-btn').addEventListener('click', async function() {
+            const btn = this;
+            const errorElement = document.getElementById('error-message');
+            
+            // 重置错误信息
+            errorElement.style.display = 'none';
+            errorElement.textContent = '';
+            
+            btn.disabled = true;
+            btn.textContent = "处理中...";
+
+            try {
+                const itemName = document.getElementById('item-name').value;
+                if (!itemName) {
+                    alert("请输入失物名称");
+                    return;
+                }
+                
+                const finderName = document.getElementById('finder-name').value || '匿名';
+                const finderPhone = document.getElementById('finder-phone').value;
+
+                const { location, address } = await getLocationAndAddress();
+                document.getElementById('user-location').textContent = location;
+                document.getElementById('user-address').textContent = address;
+                document.getElementById('location-info').style.display = 'block';
+
+                // 使用对象结构构建消息，避免使用+号拼接
+                const message = {
+                    "msgtype": "markdown",
+                    "markdown": {
+                        "content": [
+                            "**【失物招领通知】**\n\n",
+                            "🔍 失物名称：<font color=\"info\">", itemName, "</font>\n\n",
+                            "👤 拾取者：<font color=\"comment\">", finderName, "</font>\n\n",
+                            "📞 联系电话：<font color=\"comment\">", finderPhone || '未提供', "</font>\n\n",
+                            "📍 经纬度：<font color=\"comment\">", location, "</font>\n\n",
+                            "🏠 详细地址：<font color=\"comment\">", address, "</font>\n\n",
+                            "⏰ 提交时间：<font color=\"comment\">", new Date().toLocaleString(), "</font>\n\n",
+                            "> ⚠️ 请失主尽快联系拾取者，隐私数据将在归还后永久删除"
+                        ].join('')
+                    }
+                };
+
+                const result = await sendToWeCom(message);
+                if (result.success) {
+                    alert("信息已提交，请及时联系失主！");
+                } else {
+                    // 显示具体错误信息
+                    errorElement.textContent = `提交失败: ${result.error}\n`;
+                    
+                    // 根据错误类型提供解决方案
+                    if (result.type === 'protocol') {
+                        errorElement.textContent += "解决方案: 请将网站部署到HTTPS环境";
+                    } else if (result.type === 'timeout') {
+                        errorElement.textContent += "解决方案: 网络超时，请检查网络后重试";
+                    } else {
+                        errorElement.textContent += "解决方案: 请检查企业微信机器人配置或手动联系失主";
+                    }
+                    
+                    errorElement.style.display = 'block';
+                    alert("信息提交失败，请查看下方错误提示");
+                }
+            } catch (error) {
+                console.error('处理失败:', error);
+                alert("获取位置信息失败，请检查定位服务并重试。");
+            } finally {
+                btn.disabled = false;
+                btn.textContent = "提交位置信息";
+            }
+        });
+    </script>
+</body>
+</html>
